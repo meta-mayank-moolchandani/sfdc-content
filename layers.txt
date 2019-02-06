@@ -1,0 +1,19 @@
+Presentation
+Declarative: Layouts, Flow, Record Types, Formulas, Reports, Dashboards
+Coding: Apex Controllers, Visualforce, Lightning Components
+
+Business Logic Layer
+Declarative: Formula, Validation, Workflow, Process Builder, Sharing Rules
+Coding: Apex Services, Apex Custom Actions
+
+Data Access Layer
+Declarative: Data Loaders
+Coding: SOQL, SOSL, Salesforce APIs
+
+Database Layer
+Declarative: Custom Objects, Fields, Relationships, Rollups
+Coding: Apex Triggers
+
+
+
+search javascript remoting here: https://trailhead.salesforce.com/content/learn/modules/apex_patterns_sl/apex_patterns_sl_learn_sl_principles

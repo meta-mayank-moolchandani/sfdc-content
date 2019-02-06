@@ -1,0 +1,22 @@
+-------------------curl final url-----------
+5000o00002FSTed
+
+curl -v https://login.salesforce.com/services/oauth2/token -d "grant_type=password" -d "client_id=3MVG9pe2TCoA1Pf4lg.ofSpsvA8EQX0OzhzBqm8tvKzyuI64I3eJ5mJyp7daSCjSFdQRk7OHZjhFFMzc6PzCh" -d "client_secret=4127824867514198744" -d "username=mayank.moolchandani@brave-bear-84t4b5.com" -d "password=Mayank@69947" -H 'X-PrettyPrint:1'
+
+curl https://brave-bear-84t4b5-dev-ed.my.salesforce.com/services/apexrest/Cases/5000o00002FSTed -H 'Authorization: Bearer 00D0o0000019a1s!AR8AQHr.AG.RUacP.WlzGZ5E0Ii05moEgeIkutrR44sXjDeDlMDRuKt3ZdM3QTbtCyc60uMQdjkAIUjqErISQhOGOGO5yXro' -H 'X-PrettyPrint:1'
+
+
+working:----
+ 
+curl https://brave-bear-84t4b5-dev-ed.my.salesforce.com/services/apexrest/Cases/5000o00002FSTed -H "Authorization: Bearer 00D0o0000019a1s!AR8AQPBcRmGFrKH5HZ0YAAkQc.g9Oue6d9KbgwPOtBeMgXcDrHYvmJmckiMWnfQx2C1SoKT7V22TP1P.ATuHb5x7lTVgJAKG" -H 'X-PrettyPrint:1' -H 'ContentType:application/json'
+
+
+
+
+
+
+
+
+
+
+

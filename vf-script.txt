@@ -1,0 +1,2 @@
+$A.get("e.force:navigateToURL").setParams(
+    {"url": "/apex/AccountEdit?&id=0010o0000288tGuAAI"}).fire();

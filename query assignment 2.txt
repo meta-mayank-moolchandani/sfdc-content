@@ -1,0 +1,57 @@
+query 1: Write SOQL Select all strudent Name,Dob,Sex where LastName starts with “S”
+
+	SELECT First_Name__c , Last_Name__c, DOB__c,Sex__c From Student__c Where Last_Name__c LIKE 's%'
+	System.debug('Query1-->' + AssignmentQueries.getAllStudents());
+	
+query 2: Select All students where ClassName starts with “X”
+	
+	SELECT First_Name__c, Class__r.Name From Student__c WHERE Class__r.Name LIKE 'X%'
+	System.debug('Query2-->' + AssignmentQueries.getStudentsFromClassX());
+	
+query 3: Select all Student and ClassName
+
+	SELECT First_Name__c, Class__r.Name From Student__c
+	System.debug('Query3-->' + AssignmentQueries.getAllStudentsAndClass());
+	
+query 4: Select all Classes with students in every class as sub query.
+
+	SELECT Name,(SELECT First_Name__c From Students__r) From Class__c
+	System.debug('Query4-->' + AssignmentQueries.getAllClassesWithStudnets());
+	
+query 5: Select all students where class teacher name starts with “S”
+
+	SELECT First_Name__c, Class__r.Name From Student__c Where Class__r.Contact__r.Name LIKE 'S%'
+	System.debug('Query4-->' + AssignmentQueries.getAllStudnetOfClassTeacher());
+	
+query 6: All students where DOB > Year 2000
+	
+	SELECT First_Name__c, Class__r.Name, DOB__c From Student__c WHERE CALENDAR_YEAR(DOB__c) > 2000 
+	System.debug('Query6-->' + AssignmentQueries.getAllStudentsWithDobGreaterThan2009());
+	
+query 7: All Leads Where ModifiedDate in current month
+	System.debug('Query7-->' + AssignmentQueries.getAllLeadsOfCurrentMonth());
+	SELECT Name, LastModifiedDate From lead WHERE LastModifiedDate = THIS_MONTH
+	
+query 8: All Classes with Students as sub query where student Name Starts with “S”
+	
+	System.debug('Query8-->' + AssignmentQueries.getAllClassesWithStudnetsNameStartsWithS());
+	SELECT Name,(SELECT First_Name__c From Students__r WHERE First_name__c LIKE 'S%') From Class__c
+	
+query 9: All Teachers who have Hindi and English both subjects
+
+	SELECT Name, Subjects__c From Contact where Subjects__c includes ('Maths','English')
+	AssignmentQueries.getAllTeachersOfHindiAndEnglish
+	
+query 10: 
+
+SELECT First_Name__c, Class__r.Name, Class__r.Teach__r.Subject__c From Student__c  
+	
+	SELECT Name,(SELECT First_Name__c From Students__r),(SELECT Subject__c From Teachs__r Where Subject__c = 'Maths' OR Subject__c = 'English' ) From Class__c WHERE Id IN (SELECT Class__c From Teach__c Where Subject__c = 'English' OR Subject__c='Maths')
+
+	
+	
+
+
+
+	
+	

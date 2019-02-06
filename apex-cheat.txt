@@ -1,0 +1,492 @@
+APEX CHEAT SHEET
+
+list:	List<String> colors = new List<String>();
+array:	String[] colors = new List<String>();
+
+add element to arrays
+
+	// Create a list and add elements to it in one step
+		List<String> colors = new List<String> { 'red', 'green', 'blue' };
+	
+	// Add elements to a list after it has been created
+		List<String> moreColors = new List<String>();
+		moreColors.add('orange');	
+		moreColors.add('purple');
+		
+	// Get elements from a list
+		String color1 = moreColors.get(0);
+		String color2 = moreColors[0];
+		System.assertEquals(color1, color2);
+
+	// Iterate over a list to read elements
+		for(Integer i=0;i<colors.size();i++) {
+			// Write value to the debug log
+			System.debug(colors[i]);
+		}
+		
+---------------------------------------------
+public class EmailManager {
+    // Public method
+    public void sendMail(String address, String subject, String body) {
+        // Create an email message object
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        String[] toAddresses = new String[] {address};
+        mail.setToAddresses(toAddresses);
+        mail.setSubject(subject);
+        mail.setPlainTextBody(body);
+        // Pass this email message to the built-in sendEmail method 
+        // of the Messaging class
+        Messaging.SendEmailResult[] results = Messaging.sendEmail(
+                                 new Messaging.SingleEmailMessage[] { mail });
+        
+        // Call a helper method to inspect the returned results
+        inspectResults(results);
+    }
+    
+    // Helper method
+    private static Boolean inspectResults(Messaging.SendEmailResult[] results) {
+        Boolean sendResult = true;
+        
+        // sendEmail returns an array of result objects.
+        // Iterate through the list to inspect results. 
+        // In this class, the methods send only one email, 
+        // so we should have only one result.
+        for (Messaging.SendEmailResult res : results) {
+            if (res.isSuccess()) {
+                System.debug('Email sent successfully');
+            }
+            else {
+                sendResult = false;
+                System.debug('The following errors occurred: ' + res.getErrors());                 
+            }
+        }
+        
+        return sendResult;
+    }
+}
+
+----------------
+Iterate map
+        for (String fieldName : fieldMap.keySet()){
+
+            System.debug('field name is ' + fieldName);
+        }
+
+-------------------
+	public class StringArrayTest {
+		public static String[] generateStringArray(Integer n){
+			List<String> testStringArray = new List<String>();
+			String tempTest = 'test';
+			for(Integer index=0; index < n; index++ ){
+				testStringArray.add(tempTest + ' ' + index);
+			}
+			return testStringArray;
+		}
+	}
+
+----sObject
+
+	Account acct = new Account(Name='Acme');
+
+	A custom object with a label of Merchandise has an API name of Merchandise__c.
+	A custom field with a label of Description has an API name of Description__c.
+	A custom relationship field with a label of Items has an API name of Items__r.
+	
+	Account acct = new Account();
+	acct.Name = 'Acme';
+	acct.Phone = '(415)555-1212';
+	acct.NumberOfEmployees = 100;
+	
+	>>sObject for custom
+	
+	sObject sobj1 = new Account(Name='Trailhead');
+	sObject sobj2 = new Book__c(Name='Workbook 1');
+	
+--------Data Manipulation Language
+
+	>// Create the account sObject 
+		Account acct = new Account(Name='Acme', Phone='(415)555-1212', NumberOfEmployees=100);
+	>// Insert the account by using DML
+		insert acct;
+
+		insert
+		update
+		upsert
+		delete
+		undelete
+		merge
+	
+	>save unique Id:---
+	
+		// Create the account sObject 
+		Account acct = new Account(Name='Acme', Phone='(415)555-1212', NumberOfEmployees=100);
+		// Insert the account by using DML
+		insert acct;
+		// Get the new ID on the inserted sObject argument
+		ID acctID = acct.Id;
+		// Display this ID in the debug log
+		System.debug('ID = ' + acctID);
+		// Debug log result (the ID will be different in your case)
+		// DEBUG|ID = 001D000000JmKkeIAF
+		
+	>bulk insert:------------has limit of 150 objects in per transactions
+	
+		// Create a list of contacts
+		List<Contact> conList = new List<Contact> {
+			new Contact(FirstName='Joe',LastName='Smith',Department='Finance'),
+				new Contact(FirstName='Kathy',LastName='Smith',Department='Technology'),
+				new Contact(FirstName='Caroline',LastName='Roth',Department='Finance'),
+				new Contact(FirstName='Kim',LastName='Shain',Department='Education')};
+					
+		// Bulk insert all contacts with one DML call
+		insert conList;
+		// List to hold the new contacts to update
+		List<Contact> listToUpdate = new List<Contact>();
+		// Iterate through the list and add a title only
+		//   if the department is Finance
+		for(Contact con : conList) {
+			if (con.Department == 'Finance') {
+				con.Title = 'Financial analyst';
+				// Add updated contact sObject to the list.
+				listToUpdate.add(con);
+			}
+		}
+		// Bulk update all contacts with one DML call
+		update listToUpdate;
+		
+	>>UPSERT----------
+	
+	upsert sObjectList Account.Fields.MyExternalId;
+	
+	Upsert uses the sObject record's primary key (the ID), an idLookup field, or an external ID field to determine whether it should create a new record or update an existing one:
+
+	If the key is not matched, a new object record is created.
+	If the key is matched once, the existing object record is updated.
+	If the key is matched multiple times, an error is generated and the object record is neither inserted or updated.
+	
+	// Insert the Josh contact
+	Contact josh = new Contact(FirstName='Josh',LastName='Kaplan',Department='Finance');       
+	insert josh;
+	// Josh's record has been inserted
+	//   so the variable josh has now an ID
+	//   which will be used to match the records by upsert
+	josh.Description = 'Josh\'s record has been updated by the upsert operation.';
+	// Create the Kathy contact, but don't persist it in the database
+	Contact kathy = new Contact(FirstName='Kathy',LastName='Brown',Department='Technology');
+	// List to hold the new contacts to upsert
+	List<Contact> contacts = new List<Contact> { josh, kathy };
+	// Call upsert
+	upsert contacts;
+	// Result: Josh is updated and Kathy is created.
+	
+
+
+	Contact jane = new Contact(FirstName='Jane',
+                         LastName='Smith',
+                         Email='jane.smith@example.com',
+                         Description='Contact of the day');
+	insert jane;
+	// 1. Upsert using an idLookup field
+	// Create a second sObject variable.
+	// This variable doesn’t have any ID set.
+	Contact jane2 = new Contact(FirstName='Jane',
+							 LastName='Smith',  
+							 Email='jane.smith@example.com',
+							 Description='Prefers to be contacted by email.');
+	// Upsert the contact by using the idLookup field for matching.
+	upsert jane2 Contact.fields.Email;
+	// Verify that the contact has been updated
+	System.assertEquals('Prefers to be contacted by email.',
+					   [SELECT Description FROM Contact WHERE Id=:jane.Id].Description);
+		
+
+>>DELETE RECORDS-------------
+
+	Contact[] contactsDel = [SELECT Id FROM Contact WHERE LastName='Smith']; 
+	delete contactsDel;
+	
+>>HANDLE EXCEPTIOS---------------
+
+			try {
+		// This causes an exception because 
+		//   the required Name field is not provided.
+			 Account acct = new Account();
+			// Insert the account 
+			insert acct;
+		} catch (DmlException e) {
+			System.debug('A DML exception has occurred: ' +
+						e.getMessage());
+		}
+		
+--------------------------------------------------
+-------------------------------------------------
+
+>>DATABASE METHOD
+
+	Database.insert()
+	Database.update()
+	Database.upsert()
+	Database.delete()
+	Database.undelete()
+	Database.merge()
+	
+	Unlike DML statements, Database methods have an optional allOrNone parameter that allows you to specify whether the operation should partially succeed. When this parameter is set to false, if errors occur on a partial set of records, the successful records will be committed and errors will be returned for the failed records. Also, no exceptions are thrown with the partial success option.
+
+	Database.insert(recordList, false);
+	
+	The Database methods return result objects containing success or failure information for each record. For example, insert and update operations each return an array of Database.SaveResult objects.
+
+	Database.SaveResult[] results = Database.insert(recordList, false);
+
+	Note
+	Upsert returns Database.UpsertResult objects, and delete returns Database.DeleteResult objects.
+	
+		// Create a list of contacts
+	List<Contact> conList = new List<Contact> {
+			new Contact(FirstName='Joe',LastName='Smith',Department='Finance'),
+			new Contact(FirstName='Kathy',LastName='Smith',Department='Technology'),
+			new Contact(FirstName='Caroline',LastName='Roth',Department='Finance'),
+			new Contact()};
+				
+	// Bulk insert all contacts with one DML call
+	Database.SaveResult[] srList = Database.insert(conList, false);
+	// Iterate through each returned result
+	for (Database.SaveResult sr : srList) {
+		if (sr.isSuccess()) {
+			// Operation was successful, so get the ID of the record that was processed
+			System.debug('Successfully inserted contact. Contact ID: ' + sr.getId());
+		} else {
+			// Operation failed, so get all errors
+			for(Database.Error err : sr.getErrors()) {
+				System.debug('The following error has occurred.');
+				System.debug(err.getStatusCode() + ': ' + err.getMessage());
+				System.debug('Contact fields that affected this error: ' + err.getFields());
+		 }
+		}
+	}
+	
+	
+>>>RELATED RECORDS-------------
+
+	Account acct = new Account(Name='SFDC Account');
+	insert acct;
+	// Once the account is inserted, the sObject will be 
+	// populated with an ID.
+	// Get this ID.
+	ID acctID = acct.ID;
+	// Add a contact to this account.
+	Contact mario = new Contact(
+		FirstName='Mario',
+		LastName='Ruiz',
+		Phone='415.555.1212',
+		AccountId=acctID);
+	insert mario;
+	
+	
+	for updateing related objects need to make two DML calls
+	
+	// Query for the contact, which has been associated with an account.
+	Contact queriedContact = [SELECT Account.Name 
+							  FROM Contact 
+							  WHERE FirstName = 'Mario' AND LastName='Ruiz'
+							  LIMIT 1];
+	// Update the contact's phone number
+	queriedContact.Phone = '(415)555-1213';
+	// Update the related account industry
+	queriedContact.Account.Industry = 'Technology';
+	// Make two separate calls 
+	// 1. This call is to update the contact's phone.
+	update queriedContact;
+	// 2. This call is to update the related account's Industry field.
+	update queriedContact.Account;
+
+
+>>DELETE RELATED OBJECT-------------------
+
+	Account[] queriedAccounts = [SELECT Id FROM Account WHERE Name='SFDC Account'];
+	delete queriedAccounts;	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+----------------------------Async Apex---------------------------
+
+	public class SMSUtils {
+		// Call async from triggers, etc, where callouts are not permitted.
+		@future(callout=true)
+		public static void sendSMSAsync(String fromNbr, String toNbr, String m) {
+			String results = sendSMS(fromNbr, toNbr, m);
+			System.debug(results);
+		}
+		// Call from controllers, etc, for immediate processing
+		public static String sendSMS(String fromNbr, String toNbr, String m) {
+			// Calling 'send' will result in a callout
+			String results = SmsMessage.send(fromNbr, toNbr, m);
+			insert new SMS_Log__c(to__c=toNbr, from__c=fromNbr, msg__c=results);
+			return results;
+		}
+	}
+
+	Things to Remember
+	
+		>Future methods are a great tool, but with great power comes great responsibility. Here are some things to keep in mind when using them:
+		Methods with the future annotation must be static methods, and can only return a void type.
+		
+		>The specified parameters must be primitive data types, arrays of primitive data types, or collections of primitive data types; future methods can’t take objects as arguments.
+		
+		>Future methods won’t necessarily execute in the same order they are called. In addition, it’s possible that two future methods could run concurrently, which could result in record locking if the two methods were updating the same record.
+		
+		>Future methods can’t be used in Visualforce controllers in getMethodName(), setMethodName(), nor in the constructor.
+		You can’t call a future method from a future method. Nor can you invoke a trigger that calls a future method while running a future method. See the link in the Resources for preventing recursive future method calls.
+		
+		>The getContent() and getContentAsPDF() methods can’t be used in methods with the future annotation.
+		You’re limited to 50 future calls per Apex invocation, and there’s an additional limit on the number of calls in a 24-hour period. For more information on limits, see the link below.
+		
+	
+-------------------------Batch Apec Class-------------------
+
+	Batch Apex Syntax
+	To write a Batch Apex class, your class must implement the Database.Batchable interface and include the following three methods:
+	
+	Here’s how Batch Apex works under the hood. Let’s say you want to process 1 million records using Batch Apex. The execution logic of the batch class is called once for each batch of records you are processing. Each time you invoke a batch class, the job is placed on the Apex job queue and is executed as a discrete transaction. This functionality has two awesome advantages:
+	
+		Every transaction starts with a new set of governor limits, making it easier to ensure that your code stays within the governor execution limits.
+	
+		If one batch fails to process successfully, all other successful batch transactions aren’t rolled back.
+		
+		
+		global class MyBatchClass implements Database.Batchable<sObject> {
+			global (Database.QueryLocator | Iterable<sObject>) start(Database.BatchableContext bc) {
+				// collect the batches of records or objects to be passed to execute
+			}
+			global void execute(Database.BatchableContext bc, List<P> records){
+				// process each batch of records
+			}    
+			global void finish(Database.BatchableContext bc){
+				// execute any post-processing operations
+			}    
+		}
+		
+		MyBatchClass myBatchObject = new MyBatchClass(); 
+		Id batchId = Database.executeBatch(myBatchObject);
+		
+		You can also optionally pass a second scope parameter to specify the number of records that should be passed into the execute method for each batch. Pro tip: you might want to limit this batch size if you are running into governor limits.
+
+			Id batchId = Database.executeBatch(myBatchObject, 100);
+			
+		Each batch Apex invocation creates an AsyncApexJob record so that you can track the job’s progress. You can view the progress via SOQL or manage your job in the Apex Job Queue. We’ll talk about the Job Queue shortly.
+
+			AsyncApexJob job = [SELECT Id, Status, JobItemsProcessed, TotalJobItems, NumberOfErrors FROM AsyncApexJob WHERE ID = :batchId ];
+			
+			
+
+			global class UpdateContactAddresses implements 
+		Database.Batchable<sObject>, Database.Stateful {
+		
+		// instance member to retain state across transactions
+		global Integer recordsProcessed = 0;
+		global Database.QueryLocator start(Database.BatchableContext bc) {
+			return Database.getQueryLocator(
+				'SELECT ID, BillingStreet, BillingCity, BillingState, ' +
+				'BillingPostalCode, (SELECT ID, MailingStreet, MailingCity, ' +
+				'MailingState, MailingPostalCode FROM Contacts) FROM Account ' + 
+				'Where BillingCountry = \'USA\''
+			);
+		}
+		global void execute(Database.BatchableContext bc, List<Account> scope){
+			// process each batch of records
+			List<Contact> contacts = new List<Contact>();
+			for (Account account : scope) {
+				for (Contact contact : account.contacts) {
+					contact.MailingStreet = account.BillingStreet;
+					contact.MailingCity = account.BillingCity;
+					contact.MailingState = account.BillingState;
+					contact.MailingPostalCode = account.BillingPostalCode;
+					// add contact to list to be updated
+					contacts.add(contact);
+					// increment the instance member counter
+					recordsProcessed = recordsProcessed + 1;
+				}
+			}
+			update contacts;
+		}    
+		global void finish(Database.BatchableContext bc){
+			System.debug(recordsProcessed + ' records processed. Shazam!');
+			AsyncApexJob job = [SELECT Id, Status, NumberOfErrors, 
+				JobItemsProcessed,
+				TotalJobItems, CreatedBy.Email
+				FROM AsyncApexJob
+				WHERE Id = :bc.getJobId()];
+			// call some utility to send email
+			EmailUtils.sendMessage(a, recordsProcessed);
+		}    
+	}
+	
+	
+--------------------Queueable Apex---------
+public class SomeClass implements Queueable { 
+    public void execute(QueueableContext context) {
+        // awesome code here
+    }
+}
+
+
+public class AddPrimaryContact implements Queueable{
+    private Contact contact;
+    private String state;
+    
+    public AddPrimaryContact(Contact contact, String state){
+        this.contact = contact;
+        this.state = state;
+    }
+    public void execute(QueueableContext context) {
+        List<Account> accounts = [SELECT Id from Account WHERE BillingState = :state LIMIT 200];
+        List<Contact> contacts = new List<Contact>();
+        for(Account account: accounts){
+            Contact newCon = contact.clone(false,false,false,false);
+            contact.accountId= account.id;
+            contacts.add(newCon);
+        }
+        insert contacts;
+    }
+
+}
+
+@isTest
+public class AddPrimaryContactTest {
+    
+    @testSetup
+    static void setup(){
+        List<Account> accounts = new List<Account>();
+        for(Integer i = 0; i<=50; i++){
+            accounts.add(new Account(Name='Test-NY' + i,BillingState='NY'));
+            accounts.add(new Account(Name='Test-CA' + i,BillingState='CA'));
+		}
+        insert accounts;
+    }
+    
+    static testMethod void testQueueable(){
+        AddPrimaryContact addContact = new AddPrimaryContact(new Contact(LastName='Mayank1998'),'CA');
+        Test.startTest();        
+        System.enqueueJob(addContact);
+        Test.stopTest(); 
+         System.assertEquals(50, [SELECT COUNT() From Contact Where Account.BillingState = 'CA' AND LastName='Mayank1998']);
+    }
+
+}
+
+
+------------global schedular-------
+global class SomeClass implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        // awesome code here
+    }
+}
+
+	
